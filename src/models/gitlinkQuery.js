@@ -9,7 +9,7 @@ async function gitlink_table() {
       deployed_link VARCHAR(255) UNIQUE NOT NULL
     )
   `
-
+  
   try {
     const result = await db.query(gitlink_table_query)
     console.log("git_links table created successfully")
@@ -19,4 +19,17 @@ async function gitlink_table() {
   }
 }
 
-module.exports = {gitlink_table}
+async function gitlinkSave(userId, git_link,deployed_link) {
+  const GitLinkSaveQuery = `
+      INSERT INTO gitlink_table (user_id, git_link, deployed_link)
+      VALUES ($1, $2, $3) RETURNING *;
+    `
+    try {
+      const repoData = await db.query(GitLinkSaveQuery, [userId,git_link,deployed_link])
+      return repoData.rows[0]
+    } catch (error) {
+      console.log(error);
+    }
+}
+
+module.exports = { gitlink_table, gitlinkSave }

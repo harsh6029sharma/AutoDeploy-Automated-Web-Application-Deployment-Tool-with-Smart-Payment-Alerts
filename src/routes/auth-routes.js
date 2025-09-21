@@ -1,7 +1,7 @@
 const express = require('express')
 const { registerUserController, loginUserController, changePasswordController } = require('../controllers/auth-controllers')
 const authMiddleware = require('../middleware/auth-middleware')
-const { uploadGitlinkController } = require('../controllers/upload-gitlink-controller')
+const uploadGitlinkController = require('../controllers/upload-gitlink-controller')
 
 const router = express.Router()
 
