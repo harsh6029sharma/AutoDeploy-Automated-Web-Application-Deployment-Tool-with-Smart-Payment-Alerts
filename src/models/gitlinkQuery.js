@@ -4,12 +4,13 @@ async function gitlink_table() {
   const gitlink_table_query = `
     CREATE TABLE IF NOT EXISTS git_links (
       id SERIAL PRIMARY KEY,
-      user_id INTEGER UNIQUE REFERENCES users(id),
-      git_link VARCHAR(255) UNIQUE NOT NULL,
-      deployed_link VARCHAR(255) UNIQUE NOT NULL
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      git_link VARCHAR(255) NOT NULL,
+      deployed_link VARCHAR(255) NOT NULL,
+      UNIQUE (user_id,git_link)   
     )
   `
-  
+  // UNIQUE (user_id,git_link) -> this is the composite key
   try {
     const result = await db.query(gitlink_table_query)
     console.log("git_links table created successfully")
@@ -21,15 +22,22 @@ async function gitlink_table() {
 
 async function gitlinkSave(userId, git_link,deployed_link) {
   const GitLinkSaveQuery = `
-      INSERT INTO gitlink_table (user_id, git_link, deployed_link)
-      VALUES ($1, $2, $3) RETURNING *;
+      INSERT INTO git_links (user_id, git_link, deployed_link)
+      VALUES ($1, $2, $3)
+      RETURNING *
     `
     try {
       const repoData = await db.query(GitLinkSaveQuery, [userId,git_link,deployed_link])
-      return repoData.rows[0]
+      return repoData.rows 
     } catch (error) {
       console.log(error);
+      throw error
     }
 }
 
-module.exports = { gitlink_table, gitlinkSave }
+
+// file: models/gitlinkQuery.js
+
+
+// gitlink_table aur gitlinkSave ke saath ise bhi export karein
+module.exports = { gitlink_table, gitlinkSave };

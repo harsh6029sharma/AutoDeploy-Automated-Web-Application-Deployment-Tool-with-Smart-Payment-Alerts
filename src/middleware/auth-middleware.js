@@ -18,7 +18,7 @@ const authMiddleware = (req, res, next) => {
         //so to decode the token we need jwt package
         const decodedTokenInfo = jwt.verify(token, process.env.JWT_SECRET_KEY);
         console.log(decodedTokenInfo);
-        req.userInfo = decodedTokenInfo;
+        req.user = decodedTokenInfo;
         next();
 
     } catch (error) {

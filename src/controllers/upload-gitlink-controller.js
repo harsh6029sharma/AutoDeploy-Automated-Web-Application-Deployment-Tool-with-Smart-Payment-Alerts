@@ -2,13 +2,14 @@ const fs = require('fs')
 const path = require('path')
 const simpleGit = require('simple-git');
 const { gitlinkSave } = require('../models/gitlinkQuery');
-simpleGit().clean(simpleGit.CleanOptions.FORCE);
+const {gitlink_table} = require('../models/gitlinkQuery')
 
 const uploadGitlinkController = async (req, res) => {
 
     try {
 
         const { repoUrl } = req.body
+        const userId = req.user.userId
 
         if (!repoUrl) {
             return res.status(400).json({
@@ -37,32 +38,27 @@ const uploadGitlinkController = async (req, res) => {
             });
         }
 
-
         const git = simpleGit()
 
         //clone command
         await git.clone(repoUrl, clonePath)
 
-        await gitlinkSave(1, repoUrl, 'nil')
+
+        const result = await gitlinkSave(userId, repoUrl, 'nil')
 
         res.status(201).json({
             success: true,
-            message: 'repo cloned successfully!'
+            message: 'repo cloned successfully!',
+            data: result
         })
 
-        // if folder does not exist then create
-        if (!fs.existsSync(folderPath)) {
-            fs.mkdir(folderPath)
-            console.log('project cloned and saved in cloned_projects folder successfully!');
-        }
-        else {
-            console.log('folder already exist');
-        }
     } catch (error) {
-        console.log(error);
+        console.log('detailed error', error);
         res.status(500).json({
+
             success: false,
-            message: 'error while cloning repo...'
+            message: 'error while cloning repo...',
+            error: error.message
         })
     }
 
